@@ -102,7 +102,7 @@ class AuthControllerTest extends TestCase
     }
 
      /** @test */
-     public function test_get_user()
+     public function test_get_users()
      {
          DefaultDataTest::data_seed();
  
@@ -112,9 +112,11 @@ class AuthControllerTest extends TestCase
  
          $response = $this->withHeaders([
              'Authorization' => 'Bearer ' . $token,
-         ])->post('/api/auth/users');
+         ])->get('/api/auth/users');
  
          $response->assertStatus(200);
+
+         $response->assertJsonStructure(['users']);
      }
 
     
