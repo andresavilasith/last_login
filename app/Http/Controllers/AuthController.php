@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\AuthRegisterRequest;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class AuthController extends Controller
@@ -15,7 +16,6 @@ class AuthController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['login']]);
     }
 
     /**
@@ -30,6 +30,16 @@ class AuthController extends Controller
         if (!$token = auth()->attempt($credentials)) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
+
+        $idCurrentUser = auth()->user()->id;
+
+        $currentUser = User::findOrFail($idCurrentUser);
+
+        $currentDatetime = Carbon::now();
+
+        $currentUser->last_login_date = $currentDatetime;
+
+        $currentUser->update();
 
         return $this->respondWithToken($token);
     }
@@ -57,16 +67,6 @@ class AuthController extends Controller
     }
 
     /**
-     * Refresh a token.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function refresh()
-    {
-        return $this->respondWithToken(auth()->refresh());
-    }
-
-    /**
      * Get the token array structure.
      *
      * @param  string $token
@@ -78,7 +78,7 @@ class AuthController extends Controller
         return response()->json([
             'access_token' => $token,
             'token_type' => 'bearer',
-            'expires_in' => auth()->factory()->getTTL() * 60
+            'expires_in' => auth('api')->factory()->getTTL() * 60
         ]);
     }
 
@@ -96,5 +96,14 @@ class AuthController extends Controller
             'status' => 'success',
             'user' => $user
         ], 201);
+    }
+
+    public function users()
+    {
+        $users = User::all();
+
+        return response()->json([
+            'users' => $users
+        ]);
     }
 }

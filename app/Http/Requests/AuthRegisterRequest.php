@@ -13,7 +13,7 @@ class AuthRegisterRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,9 +24,12 @@ class AuthRegisterRequest extends FormRequest
     public function rules()
     {
         return [
-            'name'=>'required',
-            'email'=>'required|string|email|unique:users',
-            'password'=>'required|string|min:4'
+            'name' => 'required',
+            'email' => 'required|string|email|unique:users',
+            'password' => 'required|string|min:4',
+            'phone' => 'required',
+            'image' => 'mimes:jpg,jpeg,png|nullable',
+            'last_login_date' => 'date|nullable'
         ];
     }
 }
